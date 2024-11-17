@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        background-color: #222;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #tvchart {
+        width: 98vw;
+        height: 98vh;
+      }
+    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Realtime CandleStick Chart with Indicators</title>
+  </head>
+  <body>
+    <div id="tvchart"></div>
+  </body>
+
+  <script
+    src="https://cdn.socket.io/4.8.0/socket.io.min.js"
+    integrity="sha384-OoIbkvzsFFQAG88r+IqMAjyOtYDPGO0cqK5HF5Uosdy/zUEGySeAzytENMDynREd"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+  <script
+    type="module"
+    src="../proxy/node_modules/lightweight-charts/dist/lightweight-charts.standalone.development.js"
+  ></script>
+  <script type="module" src="tv.js"></script>
+  <script type="module" src="index.js"></script>
+  <script type="module" src="kline.js"></script>
+</html>
