@@ -3,7 +3,7 @@ import got from "got";
 import WebSocket from "ws";
 
 export class BinanceKlineWS {
-  constructor(symbol = "BTCUSDT", interval = "1h") {
+  constructor(symbol = "BTCUSDT", interval = "1m") {
     this.symbol = symbol.toLowerCase();
     this.interval = interval;
     this.klines = new Map();
@@ -11,6 +11,8 @@ export class BinanceKlineWS {
     this.ema = new EMA(21);
     this.rsi = new RSI(14);
     this.macd = new MACD(12, 26, 9);
+    this.long = false;
+    this.short = false;
     this.initialize();
   }
 
@@ -49,10 +51,14 @@ export class BinanceKlineWS {
               ? this.macd.momentValue(Number(kline[4]))
               : this.macd.nextValue(Number(kline[4])),
         };
-        this.klines.set(formattedData.time, formattedData);
 
-        this.connect();
+        this.klines.set(formattedData.time, formattedData);
       });
+
+      const data = this.markers_inc(this.klines);
+      this.klines = data;
+
+      this.connect();
     } catch (error) {
       console.log("Error fetching historical klines: ", error);
     }
@@ -72,6 +78,7 @@ export class BinanceKlineWS {
     this.ws.on("message", (data) => {
       const parsedData = JSON.parse(data);
       if (parsedData.e !== "kline") return;
+
       const kline = parsedData.k;
       const isFinal = kline.x;
       const formattedData = {
@@ -82,20 +89,29 @@ export class BinanceKlineWS {
         close: Number(kline.c),
         volume: Number(kline.v),
         sma: isFinal
-          ? this.sma.nextValue(Number(kline[4]))
-          : this.sma.momentValue(Number(kline[4])),
+          ? this.sma.nextValue(Number(kline.c))
+          : this.sma.momentValue(Number(kline.c)),
         ema: isFinal
-          ? this.ema.nextValue(Number(kline[4]))
-          : this.ema.momentValue(Number(kline[4])),
+          ? this.ema.nextValue(Number(kline.c))
+          : this.ema.momentValue(Number(kline.c)),
         rsi: isFinal
-          ? this.rsi.nextValue(Number(kline[4]))
-          : this.rsi.momentValue(Number(kline[4])),
+          ? this.rsi.nextValue(Number(kline.c))
+          : this.rsi.momentValue(Number(kline.c)),
         macd: isFinal
-          ? this.macd.nextValue(Number(kline[4]))
-          : this.macd.momentValue(Number(kline[4])),
+          ? this.macd.nextValue(Number(kline.c))
+          : this.macd.momentValue(Number(kline.c)),
+        long: false,
+        short: false,
       };
 
-      this.klines.set(formattedData.time, formattedData);
+      // Récupérer la dernière entrée ajoutée à la Map
+      const lastKey = [...this.klines].pop(); // On transforme la Map en tableau, puis on récupère le dernier élément
+      const lastValue = lastKey ? lastKey[1] : null; // lastKey[1] correspond à la valeur de la dernière entrée
+
+      const newKline = this.update_markers(lastValue, formattedData);
+
+      this.klines.set(newKline.time, newKline);
+
       // EMITS EVENT WITH KLINE DATA
       this.onKline(formattedData);
     });
@@ -104,8 +120,8 @@ export class BinanceKlineWS {
     this.maxReconnectDelay = 30000; // Temps maximal de reconnexion (30 secondes)
 
     this.ws.on("close", () => {
-      console.log(`Try to reconnect...`);
-      // setTimeout(() => this.connect(), this.reconnectDelay);
+      console.log("Try to reconnect...");
+      setTimeout(() => this.connect(), this.reconnectDelay);
 
       // Augmenter le délai de reconnexion de manière progressive
       this.reconnectDelay = Math.min(
@@ -115,11 +131,52 @@ export class BinanceKlineWS {
     });
 
     this.ws.on("error", (error) => {
-      console.log(`WebSocket error: `, error);
+      console.log("WebSocket error: ", error);
     });
   }
 
-  onKline(kline) {}
+  onKline(formattedData) {
+    console.log("KLINE");
+    console.log(formattedData);
+  }
+
+  markers_inc(data) {
+    // Convertir la Map en tableau pour pouvoir accéder aux indices
+    const entries = Array.from(data.entries());
+
+    // Parcourir les entrées et ajouter `long` et `short`
+    for (let i = 0; i < entries.length; i++) {
+      const [key, d] = entries[i];
+      const prev = i > 0 ? entries[i - 1][1] : null;
+
+      const long = prev && d.ema > d.sma && prev.ema < prev.sma;
+      const short = prev && d.ema < d.sma && prev.ema > prev.sma;
+
+      // Mettre à jour l'objet avec les nouvelles propriétés
+      data.set(key, { ...d, long, short });
+    }
+
+    return data; // Retourner la Map modifiée
+  }
+
+  update_markers(previousKline, newKline) {
+    // Calculer les conditions 'long' et 'short' en comparant les EMAs et SMAs des deux klines
+    const long =
+      previousKline &&
+      newKline.ema > newKline.sma &&
+      previousKline.ema < previousKline.sma;
+    const short =
+      previousKline &&
+      newKline.ema < newKline.sma &&
+      previousKline.ema > previousKline.sma;
+
+    // Retourner le nouveau kline avec les propriétés 'long' et 'short' ajoutées
+    return {
+      ...newKline, // On garde toutes les propriétés existantes de newKline
+      long, // Ajoute la propriété 'long'
+      short, // Ajoute la propriété 'short'
+    };
+  }
 
   // GET LATEST KLINES
   getKlines() {

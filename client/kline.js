@@ -113,7 +113,27 @@ export class KlineChart {
       this.extractNestedData(klinedata, "macd.signal")
     );
 
-    console.log("loaded historical data.");
+    this.markersSeries = klinedata
+      .filter((d) => d.long || d.short)
+      .map((d) =>
+        d.long
+          ? {
+              time: d.time,
+              position: "belowBar",
+              color: "green",
+              shape: "arrowUp",
+              text: "LONG",
+            }
+          : {
+              time: d.time,
+              position: "aboveBar",
+              color: "red",
+              shape: "arrowDown",
+              text: "SHORT",
+            }
+      );
+
+    this.candleseries.setMarkers(this.markersSeries);
   }
 
   extractData(klinedata, key) {
@@ -149,7 +169,7 @@ export class KlineChart {
       this.emaSeries.update({ time: kline.time, value: kline.ema });
     }
     if (kline.rsi) {
-      this.rsiSeries.update({ time: kline.time, value: kline.ema });
+      this.rsiSeries.update({ time: kline.time, value: kline.rsi });
       this.overboughtSeries.update({ time: kline.time, value: 70 });
       this.oversoldSeries.update({ time: kline.time, value: 30 });
     }
@@ -159,5 +179,38 @@ export class KlineChart {
       this.macdFastSeries.update({ time: kline.time, value: macd });
       this.macdSlowSeries.update({ time: kline.time, value: signal });
     }
+
+    // Ajouter un marker conditionnellement
+    const newMarkers = [kline]
+      .filter((d) => d.long || d.short)
+      .map((d) =>
+        d.long
+          ? {
+              time: d.time,
+              position: "belowBar",
+              color: "green",
+              shape: "arrowUp",
+              text: "LONG",
+            }
+          : {
+              time: d.time,
+              position: "aboveBar",
+              color: "red",
+              shape: "arrowDown",
+              text: "SHORT",
+            }
+      );
+
+    // Vérifier si le dernier marker a le même time que le nouveau marker
+    newMarkers.forEach((newMarker) => {
+      const lastMarker = this.markersSeries[this.markersSeries.length - 1];
+      if (!lastMarker || lastMarker.time !== newMarker.time) {
+        // Si le dernier marker est différent, on ajoute le nouveau marker à la liste
+        this.markersSeries.push(newMarker);
+      }
+    });
+
+    // Mettre à jour les markers dans candleseries
+    this.candleseries.setMarkers(this.markersSeries);
   }
 }
