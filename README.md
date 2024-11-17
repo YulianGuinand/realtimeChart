@@ -31,7 +31,7 @@
 ---
 ## 🖥️ Utilisation
 
-1. Accédez à l'interface web à l'adresse [http://localhost:3000](http://localhost:3000).  
+1. Accédez à l'interface web à l'adresse [http://localhost:3000](http://localhost:5500).  
 2. Explorez les graphiques en temps réel.  
 3. Ajoutez des transactions fictives et analysez leurs impacts.  
 ## 📚 Documentation des indicateurs
