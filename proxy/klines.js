@@ -135,10 +135,7 @@ export class BinanceKlineWS {
     });
   }
 
-  onKline(formattedData) {
-    console.log("KLINE");
-    console.log(formattedData);
-  }
+  onKline(formattedData) {}
 
   markers_inc(data) {
     // Convertir la Map en tableau pour pouvoir accéder aux indices

@@ -2,18 +2,54 @@
 <html lang="en">
   <head>
     <style>
-      body {
+      * {
         padding: 0;
         margin: 0;
-        background-color: #222;
+        box-sizing: border-box;
+      }
+
+      body,
+      html {
+        width: 100%;
+        height: 100vh;
+        background-color: #2a2e39;
         display: flex;
         align-items: center;
         justify-content: center;
+        gap: 3em;
       }
 
       #tvchart {
-        width: 98vw;
-        height: 98vh;
+        width: 70vw;
+        height: 80vh;
+        border-radius: 1em;
+        overflow: hidden;
+      }
+      .info_card {
+        width: 20vw;
+        height: 80vh;
+        background-color: #171b26;
+        border-radius: 1em;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+      }
+
+      .info_card > div {
+        margin-left: 2em;
+        color: white;
+        font-family: "Roboto", "sans-serif";
+        display: flex;
+        align-items: center;
+      }
+
+      .green {
+        color: green;
+      }
+
+      .red {
+        color: red;
       }
     </style>
     <meta charset="UTF-8" />
@@ -29,6 +65,19 @@
   </head>
   <body>
     <div id="tvchart"></div>
+    <div class="info_card">
+      <div class="cryptoSymbole">
+        <p class="">BTCUSDT</p>
+      </div>
+
+      <div class="price_info">
+        <p><span class="price">92081</span> usdt</p>
+      </div>
+
+      <div class="volume_info">
+        <p>Volume <span class="volume">2,13K</span></p>
+      </div>
+    </div>
   </body>
 
   <script

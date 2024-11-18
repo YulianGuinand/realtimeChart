@@ -4,7 +4,7 @@ export class KlineChart {
     this.chartProperties = {
       layout: {
         fontFamily: "'Roboto', sans-serif",
-        background: { color: "#222" },
+        background: { color: "#171B26" },
         textColor: "#DDD",
       },
       grid: {
@@ -86,7 +86,6 @@ export class KlineChart {
   }
 
   loadHistoricalData(klinedata) {
-    console.log(klinedata);
     // SET INITIAL DATA FOR EACH SERIES
 
     const lineData = klinedata.map((datapoint) => ({
