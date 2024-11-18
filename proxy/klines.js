@@ -149,13 +149,28 @@ export class BinanceKlineWS {
       const [key, d] = entries[i];
       const prev = i > 0 ? entries[i - 1][1] : null;
 
-      const long = prev && d.ema > d.sma && prev.ema < prev.sma;
-      const short = prev && d.ema < d.sma && prev.ema > prev.sma;
+      const SmaEmalong = prev && d.ema > d.sma && prev.ema < prev.sma;
+      const SmaEmashort = prev && d.ema < d.sma && prev.ema > prev.sma;
+
+      // Vérification des conditions pour rsi
+      const rsi_long = prev && d.rsi < 30 && d.rsi > prev.rsi;
+      const rsi_short = prev && d.rsi > 70 && d.rsi < prev.rsi;
+
+      // Vérification des conditions pour macd
+      // console.log(d.macd?.histogram);
+      const macd_long =
+        prev && d.macd?.histogram > 0 && prev.macd?.histogram <= 0;
+      const macd_short =
+        prev && d.macd?.histogram < 0 && prev.macd?.histogram >= 0;
 
       // Mettre à jour l'objet avec les nouvelles propriétés
-      data.set(key, { ...d, long, short });
+      data.set(key, {
+        ...d,
+        ema_sma_markers: { long: SmaEmalong, short: SmaEmashort },
+        rsi_markers: { long: rsi_long, short: rsi_short },
+        macd_markers: { long: macd_long, short: macd_short },
+      });
     }
-
     return data; // Retourner la Map modifiée
   }
 

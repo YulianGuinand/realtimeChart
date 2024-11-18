@@ -86,6 +86,7 @@ export class KlineChart {
   }
 
   loadHistoricalData(klinedata) {
+    console.log(klinedata);
     // SET INITIAL DATA FOR EACH SERIES
 
     const lineData = klinedata.map((datapoint) => ({
@@ -113,10 +114,10 @@ export class KlineChart {
       this.extractNestedData(klinedata, "macd.signal")
     );
 
-    this.markersSeries = klinedata
-      .filter((d) => d.long || d.short)
+    this.EmaSmaMarkersSeries = klinedata
+      .filter((d) => d.ema_sma_markers?.long || d.ema_sma_markers?.short)
       .map((d) =>
-        d.long
+        d.ema_sma_markers.long
           ? {
               time: d.time,
               position: "belowBar",
@@ -133,7 +134,51 @@ export class KlineChart {
             }
       );
 
-    this.candleseries.setMarkers(this.markersSeries);
+    this.candleseries.setMarkers(this.EmaSmaMarkersSeries);
+
+    this.RsiMarkersSeries = klinedata
+      .filter((d) => d.rsi_markers?.long || d.rsi_markers?.short)
+      .map((d) =>
+        d.rsi_markers.long
+          ? {
+              time: d.time,
+              position: "belowBar",
+              color: "green",
+              shape: "arrowUp",
+              text: "LONG",
+            }
+          : {
+              time: d.time,
+              position: "aboveBar",
+              color: "red",
+              shape: "arrowDown",
+              text: "SHORT",
+            }
+      );
+
+    this.rsiSeries.setMarkers(this.RsiMarkersSeries);
+
+    this.MacdMarkersSeries = klinedata
+      .filter((d) => d.macd_markers?.long || d.macd_markers?.short)
+      .map((d) =>
+        d.macd_markers.long
+          ? {
+              time: d.time,
+              position: "belowBar",
+              color: "green",
+              shape: "arrowUp",
+              text: "LONG",
+            }
+          : {
+              time: d.time,
+              position: "aboveBar",
+              color: "red",
+              shape: "arrowDown",
+              text: "SHORT",
+            }
+      );
+
+    this.macdSlowSeries.setMarkers(this.MacdMarkersSeries);
   }
 
   extractData(klinedata, key) {
@@ -156,6 +201,7 @@ export class KlineChart {
   }
 
   updateKline(kline) {
+    // console.log(kline);
     this.areaSeries.update({
       time: kline.time,
       value: (kline.close + kline.open) / 2,
@@ -182,9 +228,9 @@ export class KlineChart {
 
     // Ajouter un marker conditionnellement
     const newMarkers = [kline]
-      .filter((d) => d.long || d.short)
+      .filter((d) => d.ema_sma_markers?.long || d.ema_sma_markers?.short)
       .map((d) =>
-        d.long
+        d.ema_sma_markers.long
           ? {
               time: d.time,
               position: "belowBar",
@@ -203,14 +249,83 @@ export class KlineChart {
 
     // Vérifier si le dernier marker a le même time que le nouveau marker
     newMarkers.forEach((newMarker) => {
-      const lastMarker = this.markersSeries[this.markersSeries.length - 1];
+      const lastMarker =
+        this.EmaSmaMarkersSeries[this.EmaSmaMarkersSeries.length - 1];
       if (!lastMarker || lastMarker.time !== newMarker.time) {
         // Si le dernier marker est différent, on ajoute le nouveau marker à la liste
-        this.markersSeries.push(newMarker);
+        this.EmaSmaMarkersSeries.push(newMarker);
       }
     });
 
-    // Mettre à jour les markers dans candleseries
-    this.candleseries.setMarkers(this.markersSeries);
+    // Mettre à jour les markers dans candleSeries
+    this.candleseries.setMarkers(this.EmaSmaMarkersSeries);
+
+    // Ajouter un marker conditionnellement
+    const newRsiMarkers = [kline]
+      .filter((d) => d.rsi_markers?.long || d.rsi_markers?.short)
+      .map((d) =>
+        d.rsi_markers.long
+          ? {
+              time: d.time,
+              position: "belowBar",
+              color: "green",
+              shape: "arrowUp",
+              text: "LONG",
+            }
+          : {
+              time: d.time,
+              position: "aboveBar",
+              color: "red",
+              shape: "arrowDown",
+              text: "SHORT",
+            }
+      );
+
+    // Vérifier si le dernier marker a le même time que le nouveau marker
+    newRsiMarkers.forEach((newRsiMarker) => {
+      const lastMarker =
+        this.RsiMarkersSeries[this.RsiMarkersSeries.length - 1];
+      if (!lastMarker || lastMarker.time !== newRsiMarker.time) {
+        // Si le dernier marker est différent, on ajoute le nouveau marker à la liste
+        this.RsiMarkersSeries.push(newRsiMarker);
+      }
+    });
+
+    // Mettre à jour les markers dans rsiSeries
+    this.rsiSeries.setMarkers(this.RsiMarkersSeries);
+
+    // Ajouter un marker conditionnellement
+    const macdMarkers = [kline]
+      .filter((d) => d.macd_markers?.long || d.macd_markers?.short)
+      .map((d) =>
+        d.macd_markers.long
+          ? {
+              time: d.time,
+              position: "belowBar",
+              color: "green",
+              shape: "arrowUp",
+              text: "LONG",
+            }
+          : {
+              time: d.time,
+              position: "aboveBar",
+              color: "red",
+              shape: "arrowDown",
+              text: "SHORT",
+            }
+      );
+
+    // Vérifier si le dernier marker a le même time que le nouveau marker
+    macdMarkers.forEach((newRsiMarker) => {
+      const lastMarker =
+        this.MacdMarkersSeries[this.MacdMarkersSeries.length - 1];
+      if (!lastMarker || lastMarker.time !== newRsiMarker.time) {
+        // Si le dernier marker est différent, on ajoute le nouveau marker à la liste
+        this.MacdMarkersSeries.push(newRsiMarker);
+      }
+    });
+
+    // Mettre à jour les markers dans rsiSeries
+    this.macdSlowSeries.setMarkers(this.MacdMarkersSeries);
   }
 }
