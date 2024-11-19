@@ -20,7 +20,7 @@ const io = new Server(server, {
   },
 });
 
-const binanceKlinesWS = new Klines();
+const binanceKlinesWS = new Klines("BTCUSDT");
 
 // HANDLE SOCKET.IO CONNECTIONS
 io.on("connection", (socket) => {

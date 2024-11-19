@@ -25,7 +25,7 @@
         border-radius: 1em;
         overflow: hidden;
       }
-      .info_card {
+      .card {
         width: 20vw;
         height: 80vh;
         background-color: #171b26;
@@ -33,10 +33,9 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        justify-content: space-around;
       }
 
-      .info_card > div {
+      .card > div {
         margin-left: 2em;
         color: white;
         font-family: "Roboto", "sans-serif";
@@ -65,7 +64,7 @@
   </head>
   <body>
     <div id="tvchart"></div>
-    <div class="info_card">
+    <div class="card">
       <div class="cryptoSymbole">
         <p class="">BTCUSDT</p>
       </div>
@@ -76,6 +75,19 @@
 
       <div class="volume_info">
         <p>Volume <span class="volume">2,13K</span></p>
+      </div>
+
+      <div class="paiement">
+        <p>EMA - SMA : <span class="ema_sma"></span>$</p>
+      </div>
+      <div class="paiement">
+        <p>RSI : <span class="rsi"></span>$</p>
+      </div>
+      <div class="paiement">
+        <p>MACD : <span class="macd"></span>$</p>
+      </div>
+      <div class="paiement">
+        <p>TOUS : <span class="full"></span>$</p>
       </div>
     </div>
   </body>
